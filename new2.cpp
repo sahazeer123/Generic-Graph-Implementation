@@ -2,6 +2,7 @@
 #include <unordered_map>
 #include <queue>
 #include <list>
+#include <algorithm>
 using namespace std;
 template<typename T>
 class Graph
@@ -35,8 +36,11 @@ public:
 		{
 			adjList = list;
 			current = src;
-			visited[current] = true;
-			Q.push(current);
+			if(src != T())
+			{
+				visited[current] = true;
+			    Q.push(current);
+			}
 		}
 		bool operator==(const BFSIterator& rhs)
 		{
@@ -52,23 +56,18 @@ public:
 		}
 		BFSIterator& operator++()
 		{
+			current = Q.front();
+			Q.pop();
+			for(auto neigh:adjList[current])
+			{
+				if(!visited[neigh])
+				{
+					Q.push(neigh);
+					visited[neigh] = true;
+				}
+			}
 			if(Q.empty())
-			{
 				current = T();
-			}
-			else
-			{
-				current = Q.front();
-			    Q.pop();
-			    for(auto neigh:adjList[current])
-			    {
-				   if(!visited[neigh])
-				   {
-					   Q.push(neigh);
-					   visited[neigh] = true;
-				    }
-			    }
-			}
 			return *this;
 		}
 	};
@@ -86,12 +85,7 @@ int main()
 {
 	Graph<int>g;
 	g.addEdge(1, 2); 
-    g.addEdge(1, 3); 
-    g.addEdge(2, 3); 
-    g.addEdge(3, 4); 
 	for(Graph<int>::BFSIterator it = g.begin();it != g.end();++it)
-	{
-		cout << *it << " ";
-	}
+		cout << *it << endl;
 	return 0;
 }
