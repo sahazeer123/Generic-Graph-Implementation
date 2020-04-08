@@ -34,10 +34,10 @@ public:
 		T current;
 	public:
         using iterator_category = forward_iterator_tag;
-        using value_type = int;
-        using difference_type = int;
-        using pointer = int*;
-        using reference = int&;
+        using value_type = T;
+        using difference_type = T;
+        using pointer = T*;
+        using reference = T&;
  
 		explicit BFSIterator(T src,unordered_map<T,list<T>>& list)
 		{
