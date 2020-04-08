@@ -91,12 +91,15 @@ public:
 };
 int main()
 {
-	Graph<int>g;
-	g.addEdge(1,2);
-	Graph<int>::BFSIterator it = find(g.begin(),g.end(),3);
-	if(it != g.end())
-		cout << "1 is found" << endl;
+	Graph<string>g;
+	g.addEdge("Modhi","Trump");
+	g.addEdge("Rahul","Yogi");
+	g.addEdge("Yogi","Trump");
+	g.addEdge("Prabhu","Rahul");
+	Graph<string>::BFSIterator it = find(g.begin(),g.end(),"Shaji");
+	if(it == g.end())
+		cout << "Modhi not found " << endl;
 	else
-		cout << "1 is not found" << endl;
+		cout << "Modhi found" << endl;
 	return 0;
 }
