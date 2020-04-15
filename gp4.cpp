@@ -96,10 +96,7 @@ int main()
 	g.addEdge("Rahul","Yogi");
 	g.addEdge("Yogi","Trump");
 	g.addEdge("Prabhu","Rahul");
-	Graph<string>::BFSIterator it = find(g.begin(),g.end(),"Shaji");
-	if(it == g.end())
-		cout << "Modhi not found " << endl;
-	else
-		cout << "Modhi found" << endl;
+	for(auto ele : g)
+		cout << ele << " ";
 	return 0;
 }
