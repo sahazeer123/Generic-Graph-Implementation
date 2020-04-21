@@ -79,18 +79,6 @@ public:
 		if(load_factor > 0.7)
 			rehash();
 	}
-	T* search(string key)
-	{
-		int index = hashFunction(key);
-		Node<T>*current = table_[index];
-		while(current)
-		{
-			if(current -> key_ == key)
-				return &(current-> value_);
-			current = current -> next_;
-		}
-		return nullptr;//T*
-	}
 	void erase(string key)
 	{
 		int index = hashFunction(key);
@@ -111,14 +99,30 @@ public:
 	}
 	T& operator[](string key)
 	{
-		T * f = search(key);
-		if(f == nullptr)
+		int index = hashFunction(key);
+		Node<T>*current = table_[index];
+		T garbage;
+		while(current)
 		{
-			T garbage;
-			insert(key,garbage);
-			f = search(key);
+			if(current -> key_ == key)
+				return current -> value_;
 		}
-		return *f;
+		Node<T>*result = nullptr;
+		if(!current)
+		{
+			insert(key,garbage);
+			index = hashFunction(key);
+			current = table_[index];
+			while(current)
+			{
+				if(current -> key_ == key)
+				{
+					result = current;
+					break;
+				}
+			}
+		}
+		return result -> value_;
 	}
 	class iterator
 	{
@@ -156,6 +160,8 @@ public:
 			}
 			return *this;
 		}
+		//lvalue bound to lvalue reference
+		//rvlaue bound to rvalue refrence or constant lvalue reference
 		bool operator!=(const iterator& rhs) 
 		{
 			return !(currentNode_->key_ == rhs.currentNode_ -> key_);
@@ -202,6 +208,19 @@ public:
 		Node<T>*current = new Node<T>("",T());
 		return iterator(table_,current,tableSize_,tableSize_);
 	}
+	iterator search(string key)
+	{
+		int index = hashFunction(key);
+		Node<T>*current = table_[index];
+		while(current)
+		{
+			if(current -> key_ == key)
+				return iterator(table_,current,tableSize_,index);
+			current = current -> next_;
+		}
+		Node<T>*temp = new Node<T>("",T());
+		return iterator(table_,temp,tableSize_,tableSize_);
+	}
 };
 
 int main()
@@ -217,5 +236,15 @@ int main()
 	phoneBook.insert("Anchi",03);
 	for(Hashtable<int>::iterator it = phoneBook.begin();it != phoneBook.end();++it)
 		cout << (*it).first << " " << (*it).second << endl;
+	Hashtable<int>::iterator it = phoneBook.search("Shaji");
+	cout << endl;
+	if(it != phoneBook.end())
+		cout << (*it).first << " " << (*it).second << endl;
+	else
+		cout << "Not present" << endl;
+	phoneBook["Shaji"] += 3;
+	cout << phoneBook["Shaji"] << endl;
+	phoneBook["Sangam"] = 10;
+	cout << phoneBook["Sangam"] << endl;
   	return 0;
 }
