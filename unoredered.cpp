@@ -67,6 +67,77 @@ public:
 		for(int i = 0;i < tableSize_;++i)
 			table_[i] = nullptr;
 	}
+	//default copy constructor use shallow copy we need deep copy
+	//copy constructor
+	//we can access private memebers of a class within class,evne these are of another instance
+	Hashtable(const Hashtable& rhs)
+	{
+		table_ = new Node<T>*[rhs.tableSize_];
+		tableSize_ = rhs.tableSize_;
+		currentSize_ = 0;
+		for(int i = 0;i < tableSize_;++i)
+			table_[i] = nullptr;
+		for(int i = 0;i < tableSize_;++i)
+		{
+			Node<T>*current = rhs.table_[i];
+			while(current)
+			{
+				insert(current -> key_,current -> value_);
+				current = current -> next_;
+			}		
+		}
+	}
+	//copy assignment operator
+	Hashtable& operator=(const Hashtable& rhs)
+	{
+		//check for self assignment
+		if(*this != rhs)
+		{
+			table_ = new Node<T>*[rhs.tableSize_];
+		    tableSize_ = rhs.tableSize_;
+		    currentSize_ = 0;
+		    for(int i = 0;i < tableSize_;++i)
+			    table_[i] = nullptr;
+		    for(int i = 0;i < tableSize_;++i)
+		    {
+			    Node<T>*current = rhs.table_[i];
+			    while(current)
+			    {
+				    insert(current -> key_,current -> value_);
+				    current = current -> next_;
+			    }		
+		    }
+		}
+		return *this;
+	}
+	//move constructor
+	//move resource owned by rvalue object to be moved to lvalue without copying
+	//move ownership of resources from one object to another
+	Hashtable(Hashtable&& rhs)
+	{
+		table_ = rhs.table_;
+		currentSize_ = rhs.currentSize_;
+		tableSize_ = rhs.tableSize_;
+		rhs.tableSize_ = 0;
+		rhs.currentSize_ = 0;
+		rhs.table_ = nullptr;
+	}
+	//move assignment
+	Hashtable& operator=(Hashtable&& rhs)
+	{
+		//release current object
+		delete []table_;
+		if(*this != rhs)
+		{
+			table_ = rhs.table_;
+			currentSize_ = rhs.currentSize_;
+			tableSize_ = rhs.tableSize_;
+			rhs.tableSize_ = 0;
+			rhs.currentSize_ = 0;
+			rhs.table_ = nullptr;
+		}
+		return *this;
+	}
 	void insert(string key,T value)
 	{
 		int idx = hashFunction(key);
@@ -76,7 +147,7 @@ public:
 		++currentSize_;
 		//rehash
 		float load_factor = currentSize_/(1.0 * tableSize_);
-		if(load_factor > 0.7)
+		if(load_factor > 1.0)
 			rehash();
 	}
 	void erase(string key)
@@ -222,7 +293,14 @@ public:
 		return iterator(table_,temp,tableSize_,tableSize_);
 	}
 };
-
+//define swap function
+template <typename T>
+void swap(T& a,T& b)
+{
+	T temp(move(a));
+	a = move(b);
+	b = move(a);
+}
 int main()
 {
 	Hashtable<int> phoneBook;
@@ -234,17 +312,33 @@ int main()
 	phoneBook.insert("Ummi",9033);
 	phoneBook.insert("Ammi",90);
 	phoneBook.insert("Anchi",03);
-	for(Hashtable<int>::iterator it = phoneBook.begin();it != phoneBook.end();++it)
-		cout << (*it).first << " " << (*it).second << endl;
-	Hashtable<int>::iterator it = phoneBook.search("Shaji");
+	Hashtable<int>::iterator it1 = phoneBook.begin();
+	it1.print();
+	//copy constructor
+	Hashtable<int> nameMap(phoneBook);
+	Hashtable<int>::iterator it2 = nameMap.begin();
 	cout << endl;
-	if(it != phoneBook.end())
+	it2.print();
+	//copy assignement operator
+	//move constructor
+	Hashtable<int> nameMap1 = move(phoneBook);
+	Hashtable<int>::iterator it3 = nameMap1.begin();
+	cout << endl;
+	it3.print();
+	//iterating through hash map
+	for(Hashtable<int>::iterator it = nameMap1.begin();it != nameMap1.end();++it)
+		cout << (*it).first << " " << (*it).second << endl;
+	//Find function
+	Hashtable<int>::iterator it = nameMap1.search("Shaji");
+	cout << endl;
+	if(it != nameMap1.end())
 		cout << (*it).first << " " << (*it).second << endl;
 	else
 		cout << "Not present" << endl;
-	phoneBook["Shaji"] += 3;
-	cout << phoneBook["Shaji"] << endl;
-	phoneBook["Sangam"] = 10;
-	cout << phoneBook["Sangam"] << endl;
+	//operator overloading []
+	nameMap1["Shaji"] += 3;
+	cout << nameMap1["Shaji"] << endl;
+	nameMap1["Sangam"] = 10;
+	cout << nameMap1["Sangam"] << endl;
   	return 0;
 }
